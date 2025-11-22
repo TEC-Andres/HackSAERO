@@ -36,6 +36,16 @@ import {
     SelectTrigger,
     SelectValue,
 } from "./select"  // Componente selector desplegable
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import { Label } from "@/components/ui/label"
 
 /**
  * Esquema de validación con Zod
@@ -151,202 +161,221 @@ const FormMeteroid: React.FC<FormMeteroidProps> = ({ onActivateSimulation }) => 
 
     return (
         <TooltipProvider>
-            <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmitSave)} className="space-y-4">
+            <div className="w-full h-full overflow-y-auto p-4 space-y-4">
+                <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onSubmitSave)} className="space-y-4">
+                        
+                        {/* Card Principal - Nombre */}
+                        <Card className="w-full">
+                            <CardHeader>
+                                <CardTitle>Meteorite Simulator</CardTitle>
+                                <CardDescription>
+                                    Enjoy the power of Meteorite Simulator.
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <FormField
+                                    control={form.control}
+                                    name="namemeteroid"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <div className="flex items-center gap-2">
+                                                <FormLabel>Name of the Meteorite</FormLabel>
+                                                <Tooltip>
+                                                    <TooltipTrigger asChild>
+                                                        <GraduationCap className="h-4 w-4 text-blue-600 cursor-help" />
+                                                    </TooltipTrigger>
+                                                    <TooltipContent>
+                                                        <p className="max-w-xs">Give your Meteorite a unique name to identify it. This helps you track and manage multiple Meteorite simulations.</p>
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                            </div>
+                                            <FormControl>
+                                                <Input
+                                                    type="text"
+                                                    placeholder="Enter Meteorite name"
+                                                    {...field}
+                                                />
+                                            </FormControl>
+                                            <FormDescription>
+                                                Enter the name of the Meteorite
+                                            </FormDescription>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </CardContent>
+                        </Card>
 
-                    <h1 className='text-2xl font-bold text-black'> Create your Meteorite</h1>
-
-
-                    <FormField
-                        control={form.control}
-                        name="namemeteroid"
-                        render={({ field }) => (
-                            <FormItem>
-                                <div className="flex items-center gap-2">
-                                    <FormLabel>Name of the Meteorite</FormLabel>
-                                    <Tooltip>
-                                        <TooltipTrigger asChild>
-                                            <GraduationCap className="h-4 w-4 text-blue-600 cursor-help" />
-                                        </TooltipTrigger>
-                                        <TooltipContent>
-                                            <p className="max-w-xs">Give your Meteorite a unique name to identify it. This helps you track and manage multiple Meteorite simulations.</p>
-                                        </TooltipContent>
-                                    </Tooltip>
-                                </div>
-                                <FormControl>
-                                    <Input
-                                        type="text"
-                                        placeholder="Enter Meteorite name"
-                                        {...field}
+                        {/* Cards en Grid Responsive */}
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                            {/* Card de Características */}
+                            <Card className="w-full">
+                                <CardHeader>
+                                    <CardTitle className="text-lg">Características</CardTitle>
+                                    <CardDescription>
+                                        Define el tamaño y composición
+                                    </CardDescription>
+                                </CardHeader>
+                                <CardContent className="space-y-4">
+                                    <FormField
+                                        control={form.control}
+                                        name="radiusMeteroid"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <div className="flex items-center gap-2">
+                                                    <FormLabel>Radio (m)</FormLabel>
+                                                    <Tooltip>
+                                                        <TooltipTrigger asChild>
+                                                            <GraduationCap className="h-4 w-4 text-blue-600 cursor-help" />
+                                                        </TooltipTrigger>
+                                                        <TooltipContent>
+                                                            <p className="max-w-xs">The radius determines the size of your Meteorite. Larger Meteorites (100+ meters) cause more significant impacts.</p>
+                                                        </TooltipContent>
+                                                    </Tooltip>
+                                                </div>
+                                                <FormControl>
+                                                    <Input
+                                                        type="text"
+                                                        placeholder="1000"
+                                                        {...field}
+                                                        onChange={e => {
+                                                            const value = e.target.value.replace(/[^0-9.]/g, '')
+                                                            field.onChange(value ? parseFloat(value) : undefined)
+                                                        }}
+                                                    />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
                                     />
-                                </FormControl>
-                                <FormDescription>
-                                    Enter the name of the Meteorite
-                                </FormDescription>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
 
-                    <FormField
-                        control={form.control}
-                        name="radiusMeteroid"
-                        render={({ field }) => (
-
-                            <FormItem>
-                                <div className="flex items-center gap-2">
-                                    <FormLabel>Radius of the Meteorite (m)</FormLabel>
-                                    <Tooltip>
-                                        <TooltipTrigger asChild>
-                                            <GraduationCap className="h-4 w-4 text-blue-600 cursor-help" />
-                                        </TooltipTrigger>
-                                        <TooltipContent>
-                                            <p className="max-w-xs">The radius determines the size of your Meteorite. Larger Meteorites (100+ meters) cause more significant impacts, while smaller ones may burn up in the atmosphere.</p>
-                                        </TooltipContent>
-                                    </Tooltip>
-                                </div>
-                                <FormControl>
-                                    <Input
-                                        type="text"
-                                        placeholder="1000"
-                                        {...field}
-                                        onChange={e => {
-                                            const value = e.target.value.replace(/[^0-9.]/g, '')
-                                            field.onChange(value ? parseFloat(value) : undefined)
-                                        }}
+                                    <FormField
+                                        control={form.control}
+                                        name="material"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <div className="flex items-center gap-2">
+                                                    <FormLabel>Material</FormLabel>
+                                                    <Tooltip>
+                                                        <TooltipTrigger asChild>
+                                                            <GraduationCap className="h-4 w-4 text-blue-600 cursor-help" />
+                                                        </TooltipTrigger>
+                                                        <TooltipContent>
+                                                            <p className="max-w-xs">Material composition affects impact energy. Iron is denser, rock may fragment.</p>
+                                                        </TooltipContent>
+                                                    </Tooltip>
+                                                </div>
+                                                <FormControl>
+                                                    <Select
+                                                        onValueChange={field.onChange}
+                                                        defaultValue={field.value}
+                                                    >
+                                                        <SelectTrigger className="w-full">
+                                                            <SelectValue placeholder="Select material" />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            <SelectItem value="rock">Rock</SelectItem>
+                                                            <SelectItem value="iron">Iron</SelectItem>
+                                                            <SelectItem value="nickel">Nickel</SelectItem>
+                                                        </SelectContent>
+                                                    </Select>
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
                                     />
-                                </FormControl>
-                                <FormDescription>
-                                    Enter the radius of the Meteorite in meters
-                                </FormDescription>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
+                                </CardContent>
+                            </Card>
 
-                    <FormField
-                        control={form.control}
-                        name="velocity"
-                        render={({ field }) => (
-                            <FormItem>
-                                <div className="flex items-center gap-2">
-                                    <FormLabel>Velocity (m/s)</FormLabel>
-                                    <Tooltip>
-                                        <TooltipTrigger asChild>
-                                            <GraduationCap className="h-4 w-4 text-blue-600 cursor-help" />
-                                        </TooltipTrigger>
-                                        <TooltipContent>
-                                            <p className="max-w-xs">Meteorites enter Earth's atmosphere at speeds between 11-72 km/s (11,000-72,000 m/s). Higher velocities create more intense impacts and atmospheric heating.</p>
-                                        </TooltipContent>
-                                    </Tooltip>
-                                </div>
-                                <FormControl>
-                                    <Input
-                                        type="text"
-                                        placeholder="1000"
-                                        {...field}
-                                        onChange={e => {
-                                            const value = e.target.value.replace(/[^0-9.]/g, '')
-                                            field.onChange(value ? parseFloat(value) : undefined)
-                                        }}
+                            {/* Card de Trayectoria */}
+                            <Card className="w-full">
+                                <CardHeader>
+                                    <CardTitle className="text-lg">Trayectoria</CardTitle>
+                                    <CardDescription>
+                                        Define velocidad y ángulo de entrada
+                                    </CardDescription>
+                                </CardHeader>
+                                <CardContent className="space-y-4">
+                                    <FormField
+                                        control={form.control}
+                                        name="velocity"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <div className="flex items-center gap-2">
+                                                    <FormLabel>Velocidad (m/s)</FormLabel>
+                                                    <Tooltip>
+                                                        <TooltipTrigger asChild>
+                                                            <GraduationCap className="h-4 w-4 text-blue-600 cursor-help" />
+                                                        </TooltipTrigger>
+                                                        <TooltipContent>
+                                                            <p className="max-w-xs">Meteorites enter at 11-72 km/s (11,000-72,000 m/s). Higher velocities create more intense impacts.</p>
+                                                        </TooltipContent>
+                                                    </Tooltip>
+                                                </div>
+                                                <FormControl>
+                                                    <Input
+                                                        type="text"
+                                                        placeholder="1000"
+                                                        {...field}
+                                                        onChange={e => {
+                                                            const value = e.target.value.replace(/[^0-9.]/g, '')
+                                                            field.onChange(value ? parseFloat(value) : undefined)
+                                                        }}
+                                                    />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
                                     />
-                                </FormControl>
-                                <FormDescription>
-                                    Enter the velocity of the Meteorite in meters per second
-                                </FormDescription>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
 
-                    <FormField
-                        control={form.control}
-                        name="angle"
-                        render={({ field }) => (
-                            <FormItem>
-                                <div className="flex items-center gap-2">
-                                    <FormLabel>Entry Angle (degrees)</FormLabel>
-                                    <Tooltip>
-                                        <TooltipTrigger asChild>
-                                            <GraduationCap className="h-4 w-4 text-blue-600 cursor-help" />
-                                        </TooltipTrigger>
-                                        <TooltipContent>
-                                            <p className="max-w-xs">Entry angle is measured from horizontal. 90° is vertical impact (most destructive), while shallow angles (15-30°) cause the Meteorite to travel farther through the atmosphere.</p>
-                                        </TooltipContent>
-                                    </Tooltip>
-                                </div>
-                                <FormControl>
-                                    <Input
-                                        type="text"
-                                        placeholder="45"
-                                        {...field}
-                                        onChange={e => {
-                                            const value = e.target.value.replace(/[^0-9.]/g, '')
-                                            field.onChange(value ? parseFloat(value) : undefined)
-                                        }}
+                                    <FormField
+                                        control={form.control}
+                                        name="angle"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <div className="flex items-center gap-2">
+                                                    <FormLabel>Ángulo (grados)</FormLabel>
+                                                    <Tooltip>
+                                                        <TooltipTrigger asChild>
+                                                            <GraduationCap className="h-4 w-4 text-blue-600 cursor-help" />
+                                                        </TooltipTrigger>
+                                                        <TooltipContent>
+                                                            <p className="max-w-xs">90° is vertical impact (most destructive), shallow angles (15-30°) travel farther through atmosphere.</p>
+                                                        </TooltipContent>
+                                                    </Tooltip>
+                                                </div>
+                                                <FormControl>
+                                                    <Input
+                                                        type="text"
+                                                        placeholder="45"
+                                                        {...field}
+                                                        onChange={e => {
+                                                            const value = e.target.value.replace(/[^0-9.]/g, '')
+                                                            field.onChange(value ? parseFloat(value) : undefined)
+                                                        }}
+                                                    />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
                                     />
-                                </FormControl>
-                                <FormDescription>
-                                    Enter the entry angle (0-90 degrees)
-                                </FormDescription>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
+                                </CardContent>
+                            </Card>
+                        </div>
 
-                    <FormField
-                        control={form.control}
-                        name="material"
-                        render={({ field }) => (
-                            <FormItem>
-                                <div className="flex items-center gap-2">
-                                    <FormLabel>Material of the Meteorite</FormLabel>
-                                    <Tooltip>
-                                        <TooltipTrigger asChild>
-                                            <GraduationCap className="h-4 w-4 text-blue-600 cursor-help" />
-                                        </TooltipTrigger>
-                                        <TooltipContent>
-                                            <p className="max-w-xs">Material composition affects impact energy. Iron Meteorites are denser and more likely to reach the surface, while rocky ones may fragment in the atmosphere. Nickel Meteorites have intermediate properties.</p>
-                                        </TooltipContent>
-                                    </Tooltip>
-                                </div>
-                                <FormControl>
-                                    <Select
-                                        onValueChange={field.onChange}
-                                        defaultValue={field.value}
-                                    >
-                                        <SelectTrigger className="w-[180px]">
-                                            <SelectValue placeholder="Select material" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="rock">Rock</SelectItem>
-                                            <SelectItem value="iron">Iron</SelectItem>
-                                            <SelectItem value="nickel">Nickel</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </FormControl>
-                                <FormDescription>
-                                    Enter the material of the Meteorite
-                                </FormDescription>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-
-                    <div style={{ display: 'flex', gap: '10px' }}>
-                        <div>
-                            <Button type="submit" variant="default" className="text-black border-black hover:bg-black hover:text-white" onClick={form.handleSubmit(onSubmitSave)}>
+                        {/* Botones de Acción */}
+                        <div className="flex gap-3 justify-end">
+                            <Button type="submit" variant="default" className="text-black border-black hover:bg-blue-800 hover:text-white">
                                 Save
                             </Button>
-                        </div>
-                        <div>
-                            <Button type="button" variant="default" className="text-black border-black hover:bg-black hover:text-white" onClick={onSubmitNasaModels}>
+                            <Button type="button" variant="default" className="text-black border-black hover:bg-blue-800 hover:text-white" onClick={onSubmitNasaModels}>
                                 Go to simulation
                             </Button>
                         </div>
-                    </div>
-                </form>
-            </Form>
+                    </form>
+                </Form>
+            </div>
         </TooltipProvider>
     )
 }

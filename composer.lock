@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "dcd61092df572793fe9ca50d3c635d2b",
+    "content-hash": "28c741f5f0035a82685929ee633c96b8",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -686,16 +686,16 @@
         },
         {
             "name": "google-gemini-php/client",
-            "version": "2.6.0",
+            "version": "2.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/google-gemini-php/client.git",
-                "reference": "c90c43a53d85715984752928628760df9c01b682"
+                "reference": "2e76d0f8801a865b5c1fb5e8516c736fc41fb2d2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/google-gemini-php/client/zipball/c90c43a53d85715984752928628760df9c01b682",
-                "reference": "c90c43a53d85715984752928628760df9c01b682",
+                "url": "https://api.github.com/repos/google-gemini-php/client/zipball/2e76d0f8801a865b5c1fb5e8516c736fc41fb2d2",
+                "reference": "2e76d0f8801a865b5c1fb5e8516c736fc41fb2d2",
                 "shasum": ""
             },
             "require": {
@@ -748,9 +748,9 @@
             ],
             "support": {
                 "issues": "https://github.com/google-gemini-php/client/issues",
-                "source": "https://github.com/google-gemini-php/client/tree/2.6.0"
+                "source": "https://github.com/google-gemini-php/client/tree/2.7.0"
             },
-            "time": "2025-09-12T13:29:29+00:00"
+            "time": "2025-11-10T14:37:15+00:00"
         },
         {
             "name": "graham-campbell/result-type",

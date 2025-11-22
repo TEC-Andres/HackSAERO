@@ -12,6 +12,23 @@ import { MeteroidProvider, useMeteroidContext } from '../../context/MeteroidCont
 import { Toaster } from '@/components/sonner'  // Sistema de notificaciones toast
 import FloatingChat from '../../components/FloatingChat'  // Chat flotante de NASAbot
 import ChatToggleButton from '../../components/ChatToggleButton'  // Botón para abrir/cerrar chat
+import { Button } from "@/components/ui/button"
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from "@/components/ui/resizable"
 
 /**
  * Componente wrapper que obtiene datos del contexto y los pasa al Canvas
@@ -100,67 +117,81 @@ const SimulationPageContent = () => {
 
             {/* Sección de Simulación 3D */}
             {activeSection === 'simulation' && (
-                <div style={{
-                    width: '100vw',
-                    height: '100vh',
-                    display: 'flex',
-                    background: 'black',
-                }}>
+                <ResizablePanelGroup
+                    direction="horizontal"
+                    style={{
+                        width: '100vw',
+                        height: '100vh',
+                        background: 'black',
+                    }}
+                >
                     {/* Panel izquierdo - Formulario */}
-                    <div style={{
-                        width: '420px',
-                        padding: '20px',
-                        boxSizing: 'border-box',
-                        backgroundColor: 'white',
-                        color: 'black',
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center'
-                    }}>
-                        <FormMeteroid onActivateSimulation={() => setActiveSection('analysis')} />
-                    </div>
+                    <ResizablePanel defaultSize={40} minSize={0} maxSize={100}>
+                        <div style={{
+                            height: '100%',
+                            padding: '20px',
+                            boxSizing: 'border-box',
+                            backgroundColor: 'black',
+                            color: 'black',
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center'
+                        }}>
+                            <FormMeteroid onActivateSimulation={() => setActiveSection('analysis')} />
+                        </div>
+                    </ResizablePanel>
+
+                    <ResizableHandle withHandle />
 
                     {/* Panel derecho - Visualización 3D */}
-                    <div style={{
-                        flex: 1,
-                        height: '100%',
-                        width: '600px'
-                    }}>
-                        <PlanetCanvasWrapper />
-                    </div>
-                </div>
+                    <ResizablePanel defaultSize={70}>
+                        <div style={{
+                            height: '100%',
+                            width: '100%'
+                        }}>
+                            <PlanetCanvasWrapper />
+                        </div>
+                    </ResizablePanel>
+                </ResizablePanelGroup>
             )}
 
             {/* Sección de Análisis con Mapa */}
             {activeSection === 'analysis' && (
-                <div style={{
-                    width: '100vw',
-                    height: '100vh',
-                    display: 'flex',
-                    background: 'white',
-                }}>
+                <ResizablePanelGroup
+                    direction="horizontal"
+                    style={{
+                        width: '100vw',
+                        height: '100vh',
+                        background: 'black',
+                    }}
+                >
                     {/* Panel izquierdo - Formulario */}
-                    <div style={{
-                        width: '420px',
-                        padding: '20px',
-                        boxSizing: 'border-box',
-                        backgroundColor: 'white',
-                        color: 'black',
-                        overflowY: 'auto',
-                        overflowX: 'hidden'
-                    }}>
-                        <FormTesting />
-                    </div>
+                    <ResizablePanel defaultSize={30} minSize={20} maxSize={50}>
+                        <div style={{
+                            height: '100%',
+                            padding: '20px',
+                            boxSizing: 'border-box',
+                            backgroundColor: 'black',
+                            color: 'white',
+                            overflowY: 'auto',
+                            overflowX: 'hidden'
+                        }}>
+                            <FormTesting />
+                        </div>
+                    </ResizablePanel>
+
+                    <ResizableHandle withHandle />
 
                     {/* Panel derecho - Mapa */}
-                    <div style={{
-                        flex: 1,
-                        height: '100%',
-                        width: '100%'
-                    }}>
-                        <MapPage />
-                    </div>
-                </div>
+                    <ResizablePanel defaultSize={70}>
+                        <div style={{
+                            height: '100%',
+                            width: '100%'
+                        }}>
+                            <MapPage />
+                        </div>
+                    </ResizablePanel>
+                </ResizablePanelGroup>
             )}
             
             {/* Chat flotante de NASAbot */}

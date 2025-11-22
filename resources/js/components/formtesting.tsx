@@ -42,6 +42,13 @@ import { GraduationCap } from 'lucide-react'
 import { duration } from 'node_modules/zod/v4/classic/iso.cjs'
 import { Share2, MessageCircle, Instagram, Twitter, Facebook } from 'lucide-react'
 import ImpactAnalysis from './ImpactAnalysis'
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from "@/components/ui/card"
 
 type MeteoriteRecord = {
     id?: number
@@ -58,14 +65,8 @@ type MeteoriteRecord = {
 
 const FormTesting = () => {
     const { updateMeteroidData, setLocation, setSelectedMeteoriteId, setIsSimulating, setCraterRadius } = useMeteroidContext()
-    const [nasaMeteoritesData, setNasaMeteoritesData] = useState<MeteoriteRecord[]>([])
     const [savedMeteoritesData, setSavedMeteoritesData] = useState<MeteoriteRecord[]>([])
     const [loading, setLoading] = useState(false)
-    const [loadingMoreNasa, setLoadingMoreNasa] = useState(false)
-    const [nasaCurrentPage, setNasaCurrentPage] = useState(0)
-    const [nasaHasMore, setNasaHasMore] = useState(true)
-    const [selectedNasaId, setSelectedNasaId] = useState<string | null>(null)
-    const [selectedNasaName, setSelectedNasaName] = useState<string | null>(null)
     const [selectedSavedId, setSelectedSavedId] = useState<string | null>(null)
     const [selectedSavedName, setSelectedSavedName] = useState<string | null>(null)
     const [impactData, setImpactData] = useState<any>(null) // Datos del impacto para mostrar
@@ -75,15 +76,13 @@ const FormTesting = () => {
 
     const form = useForm<any>({
         defaultValues: {
-            selectedNasaMeteorite: undefined,
             selectedSavedMeteorite: undefined,
             selectedCity: undefined,
         }
     })
 
-    // Cargar meteoritos guardados y de NASA al montar el componente
+    // Cargar meteoritos guardados al montar el componente
     useEffect(() => {
-        fetchNasaMeteoritesFromSupabase()
         fetchSavedMeteoritesFromSupabase()
     }, [])
 
@@ -96,91 +95,16 @@ const FormTesting = () => {
         
         // Limpiar formulario
         form.reset({
-            selectedNasaMeteorite: undefined,
             selectedSavedMeteorite: undefined,
             selectedCity: undefined,
         })
         
         // Limpiar selecciones
-        setSelectedNasaId(null)
-        setSelectedNasaName(null)
         setSelectedSavedId(null)
         setSelectedSavedName(null)
         setShowShareButtons(false)
         setShowInstagramGuide(false)
     }, [setIsSimulating, setCraterRadius, form])
-
-    // Fetch NASA Meteorites from Laravel API - Cargar primera página
-    const fetchNasaMeteoritesFromSupabase = async () => {
-        setLoading(true)
-        try {
-            const response = await fetch('/getMeteoritesNames?page=0')
-
-            if (!response.ok) {
-                throw new Error('Failed to fetch NASA Meteorites')
-            }
-
-            const result = await response.json()
-            const data = result.data || []
-            const pagination = result.pagination || {}
-
-            // Mapear los datos de NASA al formato que espera el componente
-            const mappedData: MeteoriteRecord[] = data.map((item: any) => ({
-                id: item.id,
-                name: item.name,
-            }))
-
-            setNasaMeteoritesData(mappedData)
-            setNasaCurrentPage(0)
-            setNasaHasMore(pagination.has_next || false)
-            toast.success(`${mappedData.length} NASA Meteorites loaded`, { 
-                id: TOAST_IDS.LOADING,
-                duration: 1500 
-            })
-        } catch (error) {
-            console.error('Error fetching NASA Meteorites:', error)
-            toast.error('Error loading NASA Meteorites', { 
-                id: TOAST_IDS.LOADING,
-                duration: 2000 
-            })
-        } finally {
-            setLoading(false)
-        }
-    }
-
-    // Cargar más meteoritos de NASA
-    const loadMoreNasaMeteorites = async () => {
-        if (!nasaHasMore || loadingMoreNasa) return
-
-        setLoadingMoreNasa(true)
-        try {
-            const nextPage = nasaCurrentPage + 1
-            const response = await fetch(`/getMeteoritesNames?page=${nextPage}`)
-
-            if (!response.ok) {
-                throw new Error('Failed to fetch more NASA Meteorites')
-            }
-
-            const result = await response.json()
-            const data = result.data || []
-            const pagination = result.pagination || {}
-
-            const mappedData: MeteoriteRecord[] = data.map((item: any) => ({
-                id: item.id,
-                name: item.name,
-            }))
-
-            setNasaMeteoritesData(prev => [...prev, ...mappedData])
-            setNasaCurrentPage(nextPage)
-            setNasaHasMore(pagination.has_next || false)
-            toast.success(`${mappedData.length} more Meteorites loaded`, { duration: 1000 })
-        } catch (error) {
-            console.error('Error loading more NASA Meteorites:', error)
-            toast.error('Error loading more Meteorites')
-        } finally {
-            setLoadingMoreNasa(false)
-        }
-    }
 
     // Fetch saved Meteorites from Laravel
     const fetchSavedMeteoritesFromSupabase = async () => {
@@ -255,9 +179,9 @@ const FormTesting = () => {
     const onSubmitSimulate = async (data: any) => {
         console.log("Simulating Meteorite impact with data:", data)
 
-        // Verificar que se haya seleccionado un meteorito (NASA o guardado)
-        if (!selectedNasaId && !selectedSavedId) {
-            toast.error('Please select a Meteorite first', {
+        // Verificar que se haya seleccionado un meteorito guardado
+        if (!selectedSavedId) {
+            toast.error('Please select a meteorite first', {
                 id: TOAST_IDS.SIMULATION,
                 duration: 2000
             })
@@ -270,17 +194,8 @@ const FormTesting = () => {
                 duration: 2000 
             })
 
-            let response
-            let MeteoriteName
-
-            // Llamar a la API correspondiente según el tipo seleccionado
-            if (selectedNasaId) {
-                response = await axios.get(`/getMeteoriteById/${selectedNasaId}`)
-                MeteoriteName = selectedNasaName
-            } else {
-                response = await axios.get(`/getUserMeteoriteById/${selectedSavedId}`)
-                MeteoriteName = selectedSavedName
-            }
+            const response = await axios.get(`/getUserMeteoriteById/${selectedSavedId}`)
+            const MeteoriteName = selectedSavedName
 
             const atmosphericImpact = response.data?.atmospheric_impact
             const calculations = response.data?.calculations
@@ -303,7 +218,7 @@ const FormTesting = () => {
                     duration: 2000 
                 })
             } else {
-                toast.warning('Crater data not available for this Meteorite', {
+                toast.warning('Crater data not available for this meteorite', {
                     id: TOAST_IDS.SIMULATION,
                     duration: 2500
                 })
@@ -326,8 +241,6 @@ const FormTesting = () => {
         setImpactData(null)
         setIsSimulating(false)
         setCraterRadius(null)
-        setSelectedNasaId(null)
-        setSelectedNasaName(null)
         setSelectedSavedId(null)
         setSelectedSavedName(null)
         setShowShareButtons(false)
@@ -1158,228 +1071,173 @@ This was created with Meteorica for NASA Space Apps Challenge using real NASA NE
                         </div>
                     </div>
                 ) : (
-                    // Formulario original
-                    <Form {...form}>
-                        <form onSubmit={form.handleSubmit(onSubmitSimulate)} className="space-y-4">
+                    // Formulario con Cards Responsive
+                    <div className="w-full h-full overflow-y-auto space-y-4">
+                        <Form {...form}>
+                            <form onSubmit={form.handleSubmit(onSubmitSimulate)} className="space-y-4">
+                                
+                                {/* Card Principal - Título */}
+                                <Card className="w-full bg-slate-900 border-slate-700">
+                                    <CardHeader>
+                                        <CardTitle className="text-white">Simulation of Meteorite Impact</CardTitle>
+                                        <CardDescription className="text-slate-300">
+                                            Select your custom meteorite and location
+                                        </CardDescription>
+                                    </CardHeader>
+                                </Card>
 
-                            <h1 className='text-2xl font-bold text-black'>Simulation of Meteorite Impact</h1>
-                            <br />
-
-                            <FormField
-                                control={form.control}
-                                name="selectedNasaMeteorite"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <div className="flex items-center gap-2">
-                                            <FormLabel>NASA Meteorites</FormLabel>
-                                            <Tooltip>
-                                                <TooltipTrigger asChild>
-                                                    <GraduationCap className="h-4 w-4 text-blue-600 cursor-help" />
-                                                </TooltipTrigger>
-                                                <TooltipContent>
-                                                    <p className="max-w-xs">Select from real meteorites documented by NASA. These are actual space objects that have been identified and catalogued with authentic data.</p>
-                                                </TooltipContent>
-                                            </Tooltip>
-                                        </div>
-                                        <FormControl>
-                                            <Select
-                                                onValueChange={(value) => {
-                                                    field.onChange(value)
-                                                    const selected = nasaMeteoritesData.find(m => m.name === value)
-                                                    if (selected && selected.id) {
-                                                        // Guardar el ID y nombre del meteorito seleccionado
-                                                        setSelectedNasaId(String(selected.id))
-                                                        setSelectedNasaName(selected.name)
-                                                        setSelectedMeteoriteId(String(selected.id))
-                                                        // Limpiar selección de meteoritos guardados
-                                                        setSelectedSavedId(null)
-                                                        setSelectedSavedName(null)
-                                                        form.setValue('selectedSavedMeteorite', undefined)
-                                                        toast.info(`NASA Meteorite selected: ${selected.name}`, { duration: 3000 })
-                                                    }
-                                                }}
-                                                defaultValue={field.value}
-                                                disabled={!!selectedSavedId || loading}
-                                            >
-                                                <SelectTrigger className="w-[180px]">
-                                                    <SelectValue placeholder={loading ? "Loading..." : selectedSavedId ? "Disabled - Saved selected" : "Select NASA Meteorite"} />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    {nasaMeteoritesData.length === 0 ? (
-                                                        <SelectItem value="none" disabled>
-                                                            No NASA Meteorites
-                                                        </SelectItem>
-                                                    ) : (
-                                                        nasaMeteoritesData.map((Meteorite) => (
-                                                            <SelectItem key={Meteorite.id || Meteorite.name} value={Meteorite.name}>
-                                                                {Meteorite.name}
-                                                            </SelectItem>
-                                                        ))
-                                                    )}
-                                                </SelectContent>
-                                            </Select>
-                                        </FormControl>
-                                        <FormDescription>
-                                            Use real models from NASA ({nasaMeteoritesData.length} loaded)
-                                        </FormDescription>
-                                        {nasaHasMore && (
-                                            <Button
-                                                type="button"
-                                                variant="outline"
-                                                size="sm"
-                                                onClick={loadMoreNasaMeteorites}
-                                                disabled={loadingMoreNasa}
-                                                className="w-full mt-2 bg-white text-black hover:bg-gray-100 border-gray-300 font-medium"
-                                            >
-                                                {loadingMoreNasa ? (
-                                                    <>
-                                                        <svg className="animate-spin h-4 w-4 mr-2 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                                        </svg>
-                                                        <span className="text-black">Loading...</span>
-                                                    </>
-                                                ) : (
-                                                    <>
-                                                        <span className="text-black">⬇️ Load More NASA Meteorites</span>
-                                                    </>
+                                {/* Cards en Grid Responsive */}
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                                    {/* Card de Selección de Meteorito */}
+                                    <Card className="w-full bg-slate-900 border-slate-700">
+                                        <CardHeader>
+                                            <CardTitle className="text-lg text-white">Your Meteorite</CardTitle>
+                                            <CardDescription className="text-slate-300">
+                                                Choose from your saved meteorites
+                                            </CardDescription>
+                                        </CardHeader>
+                                        <CardContent className="space-y-4">
+                                            <FormField
+                                                control={form.control}
+                                                name="selectedSavedMeteorite"
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <div className="flex items-center gap-2">
+                                                            <FormLabel className="text-white">Saved Meteorites</FormLabel>
+                                                            <Tooltip>
+                                                                <TooltipTrigger asChild>
+                                                                    <GraduationCap className="h-4 w-4 text-green-400 cursor-help" />
+                                                                </TooltipTrigger>
+                                                                <TooltipContent>
+                                                                    <p className="max-w-xs">Choose from custom meteorites you've created and saved. These include your personalized parameters.</p>
+                                                                </TooltipContent>
+                                                            </Tooltip>
+                                                        </div>
+                                                        <FormControl>
+                                                            <Select
+                                                                onValueChange={(value) => {
+                                                                    field.onChange(value)
+                                                                    const selected = savedMeteoritesData.find(m => m.name === value)
+                                                                    if (selected) {
+                                                                        setSelectedSavedId(String(selected.id))
+                                                                        setSelectedSavedName(selected.name)
+                                                                        loadMeteoriteData(selected)
+                                                                        if (selected.lat && selected.lng) {
+                                                                            setMapLocation(selected.lat, selected.lng)
+                                                                        }
+                                                                        toast.info(`Meteorite selected: ${selected.name}`)
+                                                                    }
+                                                                }}
+                                                                defaultValue={field.value}
+                                                                disabled={loading}
+                                                            >
+                                                                <SelectTrigger className="w-full bg-slate-800 border-slate-600 text-white">
+                                                                    <SelectValue placeholder={loading ? "Loading..." : "Select your meteorite"} />
+                                                                </SelectTrigger>
+                                                                <SelectContent className="bg-slate-800 border-slate-600">
+                                                                    {savedMeteoritesData.length === 0 ? (
+                                                                        <SelectItem value="none" disabled className="text-slate-400">
+                                                                            No saved meteorites
+                                                                        </SelectItem>
+                                                                    ) : (
+                                                                        savedMeteoritesData.map((Meteorite) => (
+                                                                            <SelectItem key={Meteorite.id || Meteorite.name} value={Meteorite.name} className="text-white hover:bg-slate-700">
+                                                                                {Meteorite.name}
+                                                                            </SelectItem>
+                                                                        ))
+                                                                    )}
+                                                                </SelectContent>
+                                                            </Select>
+                                                        </FormControl>
+                                                        <FormDescription className="text-slate-400">
+                                                            {savedMeteoritesData.length} meteorite(s) available
+                                                        </FormDescription>
+                                                        <FormMessage />
+                                                    </FormItem>
                                                 )}
-                                            </Button>
-                                        )}
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
+                                            />
+                                        </CardContent>
+                                    </Card>
 
-                            <FormField
-                                control={form.control}
-                                name="selectedSavedMeteorite"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <div className="flex items-center gap-2">
-                                            <FormLabel>Saved Meteorites</FormLabel>
-                                            <Tooltip>
-                                                <TooltipTrigger asChild>
-                                                    <GraduationCap className="h-4 w-4 text-green-600 cursor-help" />
-                                                </TooltipTrigger>
-                                                <TooltipContent>
-                                                    <p className="max-w-xs">Choose from custom Meteorites you've created and saved. These include your personalized parameters for radius, velocity, angle, and material composition.</p>
-                                                </TooltipContent>
-                                            </Tooltip>
-                                        </div>
-                                        <FormControl>
-                                            <Select
-                                                onValueChange={(value) => {
-                                                    field.onChange(value)
-                                                    const selected = savedMeteoritesData.find(m => m.name === value)
-                                                    if (selected) {
-                                                        // Guardar el ID y nombre del meteorito guardado
-                                                        setSelectedSavedId(String(selected.id))
-                                                        setSelectedSavedName(selected.name)
-                                                        // Limpiar selección de NASA
-                                                        setSelectedNasaId(null)
-                                                        setSelectedNasaName(null)
-                                                        form.setValue('selectedNasaMeteorite', undefined)
+                                    {/* Card de Ubicación */}
+                                    <Card className="w-full bg-slate-900 border-slate-700">
+                                        <CardHeader>
+                                            <CardTitle className="text-lg text-white">Impact Location</CardTitle>
+                                            <CardDescription className="text-slate-300">
+                                                Set the impact coordinates
+                                            </CardDescription>
+                                        </CardHeader>
+                                        <CardContent className="space-y-4">
+                                            <FormField
+                                                control={form.control}
+                                                name="selectedCity"
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <div className="flex items-center gap-2">
+                                                            <FormLabel className="text-white">Choose Location</FormLabel>
+                                                            <Tooltip>
+                                                                <TooltipTrigger asChild>
+                                                                    <GraduationCap className="h-4 w-4 text-purple-400 cursor-help" />
+                                                                </TooltipTrigger>
+                                                                <TooltipContent>
+                                                                    <p className="max-w-xs">Select a preset location or click on the map to choose your impact site.</p>
+                                                                </TooltipContent>
+                                                            </Tooltip>
+                                                        </div>
+                                                        <FormControl>
+                                                            <Select
+                                                                onValueChange={(value) => {
+                                                                    field.onChange(value)
+                                                                    switch (value) {
+                                                                        case 'france':
+                                                                            setMapLocation(46.2276, 2.2137)
+                                                                            break
+                                                                        case 'germany':
+                                                                            setMapLocation(51.1657, 10.4515)
+                                                                            break
+                                                                        case 'spain':
+                                                                            setMapLocation(40.4637, -3.7492)
+                                                                            break
+                                                                    }
+                                                                }}
+                                                                defaultValue={field.value}
+                                                            >
+                                                                <SelectTrigger className="w-full bg-slate-800 border-slate-600 text-white">
+                                                                    <SelectValue placeholder="Select city" />
+                                                                </SelectTrigger>
+                                                                <SelectContent className="bg-slate-800 border-slate-600">
+                                                                    <SelectItem value="france" className="text-white hover:bg-slate-700">France</SelectItem>
+                                                                    <SelectItem value="germany" className="text-white hover:bg-slate-700">Germany</SelectItem>
+                                                                    <SelectItem value="spain" className="text-white hover:bg-slate-700">Spain</SelectItem>
+                                                                </SelectContent>
+                                                            </Select>
+                                                        </FormControl>
+                                                        <FormDescription className="text-slate-400">
+                                                            Or click anywhere on the map
+                                                        </FormDescription>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </CardContent>
+                                    </Card>
+                                </div>
 
-                                                        loadMeteoriteData(selected)
-                                                        if (selected.lat && selected.lng) {
-                                                            setMapLocation(selected.lat, selected.lng)
-                                                        }
-                                                        toast.info(`Saved Meteorite selected: ${selected.name}`)
-                                                    }
-                                                }}
-                                                defaultValue={field.value}
-                                                disabled={!!selectedNasaId || loading}
-                                            >
-                                                <SelectTrigger className="w-[180px]">
-                                                    <SelectValue placeholder={loading ? "Loading..." : selectedNasaId ? "Disabled - NASA selected" : "Select saved Meteorite"} />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    {savedMeteoritesData.length === 0 ? (
-                                                        <SelectItem value="none" disabled>
-                                                            No saved Meteorites
-                                                        </SelectItem>
-                                                    ) : (
-                                                        savedMeteoritesData.map((Meteorite) => (
-                                                            <SelectItem key={Meteorite.id || Meteorite.name} value={Meteorite.name}>
-                                                                {Meteorite.name}
-                                                            </SelectItem>
-                                                        ))
-                                                    )}
-                                                </SelectContent>
-                                            </Select>
-                                        </FormControl>
-                                        <FormDescription>
-                                            Use your saved Meteorites
-                                        </FormDescription>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-
-                            <FormField
-                                control={form.control}
-                                name="selectedCity"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <div className="flex items-center gap-2">
-                                            <FormLabel>Choose a City</FormLabel>
-                                            <Tooltip>
-                                                <TooltipTrigger asChild>
-                                                    <GraduationCap className="h-4 w-4 text-purple-600 cursor-help" />
-                                                </TooltipTrigger>
-                                                <TooltipContent>
-                                                    <p className="max-w-xs">Select a preset location or click anywhere on the map to choose your impact site. This determines where the Meteorite will strike Earth.</p>
-                                                </TooltipContent>
-                                            </Tooltip>
-                                        </div>
-                                        <FormControl>
-                                            <Select
-                                                onValueChange={(value) => {
-                                                    field.onChange(value)
-                                                    switch (value) {
-                                                        case 'france':
-                                                            setMapLocation(46.2276, 2.2137)
-                                                            break
-                                                        case 'germany':
-                                                            setMapLocation(51.1657, 10.4515)
-                                                            break
-                                                        case 'spain':
-                                                            setMapLocation(40.4637, -3.7492)
-                                                            break
-                                                    }
-                                                }}
-                                                defaultValue={field.value}
-                                            >
-                                                <SelectTrigger className="w-[180px]">
-                                                    <SelectValue placeholder="Select city" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="france">France</SelectItem>
-                                                    <SelectItem value="germany">Germany</SelectItem>
-                                                    <SelectItem value="spain">Spain</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                        </FormControl>
-                                        <FormDescription>
-                                            You can also select your own location on the map
-                                        </FormDescription>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-
-                            <Button
-                                type="button"
-                                onClick={form.handleSubmit(onSubmitSimulate)}
-                                variant="default"
-                                className="text-black border-black hover:bg-black hover:text-white"
-                                disabled={!selectedNasaId && !selectedSavedId}
-                            >
-                                Simulate
-                            </Button>
-                        </form>
-                    </Form>
+                                {/* Botón de Simulación */}
+                                <div className="flex justify-end">
+                                    <Button
+                                        type="button"
+                                        onClick={form.handleSubmit(onSubmitSimulate)}
+                                        variant="default"
+                                        className="bg-white text-black hover:bg-slate-200 px-8"
+                                        disabled={!selectedSavedId}
+                                    >
+                                        Start Simulation
+                                    </Button>
+                                </div>
+                            </form>
+                        </Form>
+                    </div>
                 )}
             </div>
 
